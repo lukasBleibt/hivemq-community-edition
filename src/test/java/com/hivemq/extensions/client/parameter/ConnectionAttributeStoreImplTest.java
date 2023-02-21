@@ -69,7 +69,7 @@ public class ConnectionAttributeStoreImplTest {
         final String key = "test.key";
         final ByteBuffer value = ByteBuffer.wrap("test.value".getBytes());
 
-        clientConnection.setConnectionAttributes(connectionAttributes);
+        clientConnection.setConnectionAttributesIfAbsent(connectionAttributes);
 
         connectionAttributeStore.put(key, value);
 
@@ -99,7 +99,8 @@ public class ConnectionAttributeStoreImplTest {
         final String key = "test.key";
         final ByteBuffer value = ByteBuffer.wrap("test.value".getBytes());
 
-        clientConnection.setConnectionAttributes(null);
+        clientConnection = new ClientConnection(channel, mock(PublishFlushHandler.class));
+        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
 
         connectionAttributeStore.put(key, value);
         assertNotNull(clientConnection.getConnectionAttributes());
@@ -162,7 +163,8 @@ public class ConnectionAttributeStoreImplTest {
         final String key = "test.key";
         final String value = "test.value";
 
-        clientConnection.setConnectionAttributes(null);
+        clientConnection = new ClientConnection(channel, mock(PublishFlushHandler.class));
+        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
 
         connectionAttributeStore.putAsString(key, value);
         assertNotNull(clientConnection.getConnectionAttributes());
@@ -228,7 +230,8 @@ public class ConnectionAttributeStoreImplTest {
         final String value = "test.value";
         final Charset charset = StandardCharsets.ISO_8859_1;
 
-        clientConnection.setConnectionAttributes(null);
+        clientConnection = new ClientConnection(channel, mock(PublishFlushHandler.class));
+        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
 
         connectionAttributeStore.putAsString(key, value, charset);
         assertNotNull(clientConnection.getConnectionAttributes());
@@ -283,7 +286,7 @@ public class ConnectionAttributeStoreImplTest {
     public void test_get_attribute_not_present() {
         final String key = "test.key";
 
-        clientConnection.setConnectionAttributes(null);
+        clientConnection.setConnectionAttributesIfAbsent(null);
 
         final Optional<ByteBuffer> returnValue = connectionAttributeStore.get(key);
 
@@ -328,7 +331,7 @@ public class ConnectionAttributeStoreImplTest {
     public void test_getAsString_attribute_not_present() {
         final String key = "test.key";
 
-        clientConnection.setConnectionAttributes(null);
+        clientConnection.setConnectionAttributesIfAbsent(null);
 
         final Optional<String> returnValue = connectionAttributeStore.getAsString(key);
 
@@ -422,7 +425,7 @@ public class ConnectionAttributeStoreImplTest {
 
     @Test
     public void test_getAll_attribute_not_present() {
-        clientConnection.setConnectionAttributes(null);
+        clientConnection.setConnectionAttributesIfAbsent(null);
 
         final Optional<Map<String, ByteBuffer>> returnValues = connectionAttributeStore.getAll();
 
@@ -475,7 +478,7 @@ public class ConnectionAttributeStoreImplTest {
     public void test_remove_attribute_not_present() {
         final String key = "test.key";
 
-        clientConnection.setConnectionAttributes(null);
+        clientConnection.setConnectionAttributesIfAbsent(null);
 
         final Optional<ByteBuffer> returnValue = connectionAttributeStore.remove(key);
 
@@ -518,7 +521,7 @@ public class ConnectionAttributeStoreImplTest {
 
     @Test
     public void test_clear_attribute_not_present() {
-        clientConnection.setConnectionAttributes(null);
+        clientConnection.setConnectionAttributesIfAbsent(null);
 
         connectionAttributeStore.clear();
 

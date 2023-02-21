@@ -53,7 +53,7 @@ public class ConnectionAttributesTest {
 
     @Test
     public void test_getInstanceIfPresent_present() {
-        clientConnection.setConnectionAttributes(connectionAttributes);
+        clientConnection.setConnectionAttributesIfAbsent(connectionAttributes);
 
         final ConnectionAttributes returnConnectionAttributes = ConnectionAttributes.getInstanceIfPresent(channel);
 
@@ -62,7 +62,8 @@ public class ConnectionAttributesTest {
 
     @Test
     public void test_getInstanceIfPresent_not_present() {
-        clientConnection.setConnectionAttributes(null);
+        clientConnection = new ClientConnection(channel, mock(PublishFlushHandler.class));
+        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
 
         final ConnectionAttributes returnConnectionAttributes = ConnectionAttributes.getInstanceIfPresent(channel);
 
@@ -71,7 +72,7 @@ public class ConnectionAttributesTest {
 
     @Test
     public void test_getInstance_present() {
-        clientConnection.setConnectionAttributes(connectionAttributes);
+        clientConnection.setConnectionAttributesIfAbsent(connectionAttributes);
 
         final ConnectionAttributes returnConnectionAttributes = ConnectionAttributes.getInstance(channel);
 
@@ -80,7 +81,8 @@ public class ConnectionAttributesTest {
 
     @Test
     public void test_getInstance_not_present() {
-        clientConnection.setConnectionAttributes(null);
+        clientConnection = new ClientConnection(channel, mock(PublishFlushHandler.class));
+        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
 
         final ConnectionAttributes returnConnectionAttributes = ConnectionAttributes.getInstance(channel);
 
