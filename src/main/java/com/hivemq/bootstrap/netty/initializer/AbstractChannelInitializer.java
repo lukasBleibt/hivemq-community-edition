@@ -16,7 +16,8 @@
 package com.hivemq.bootstrap.netty.initializer;
 
 import com.google.common.base.Preconditions;
-import com.hivemq.bootstrap.ClientConnection;
+import com.hivemq.bootstrap.ClientConnectionContext;
+import com.hivemq.bootstrap.UndefinedClientConnection;
 import com.hivemq.bootstrap.netty.ChannelDependencies;
 import com.hivemq.codec.decoder.MQTTMessageDecoder;
 import com.hivemq.configuration.service.InternalConfigurations;
@@ -46,8 +47,9 @@ public abstract class AbstractChannelInitializer extends ChannelInitializer<Chan
     private final boolean throttlingEnabled;
     private final boolean legacyNettyShutdown;
 
-    public AbstractChannelInitializer(
-            final @NotNull ChannelDependencies channelDependencies, final @NotNull Listener listener) {
+    protected AbstractChannelInitializer(
+            final @NotNull ChannelDependencies channelDependencies,
+            final @NotNull Listener listener) {
         this.channelDependencies = channelDependencies;
         this.listener = listener;
         final boolean incomingEnabled = channelDependencies.getRestrictionsConfigurationService().incomingLimit() > 0;
@@ -70,10 +72,10 @@ public abstract class AbstractChannelInitializer extends ChannelInitializer<Chan
         }
 
         final PublishFlushHandler publishFlushHandler = channelDependencies.createPublishFlushHandler();
-        final ClientConnection clientConnection = new ClientConnection(ch, publishFlushHandler);
-        ch.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
+        final UndefinedClientConnection clientContext = new UndefinedClientConnection(ch, publishFlushHandler);
+        ch.attr(UndefinedClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientContext);
 
-        clientConnection.setConnectedListener(listener);
+        clientContext.setConnectedListener(listener);
 
         ch.pipeline().addLast(ALL_CHANNELS_GROUP_HANDLER, new ChannelGroupHandler(channelDependencies.getChannelGroup()));
         if (throttlingEnabled) {
@@ -135,10 +137,10 @@ public abstract class AbstractChannelInitializer extends ChannelInitializer<Chan
     @Override
     public void exceptionCaught(final @NotNull ChannelHandlerContext ctx, final @NotNull Throwable cause) throws Exception {
         if (cause instanceof SslException) {
-            final ClientConnection clientConnection = ctx.channel().attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
+            final ClientConnectionContext clientConnectionContext = ClientConnectionContext.get(ctx.channel());
             log.error(
                     "{}. Disconnecting client {} ", cause.getMessage(),
-                    clientConnection.getChannelIP().orElse("UNKNOWN"));
+                    clientConnectionContext.getChannelIP().orElse("UNKNOWN"));
             log.debug("Original exception:", cause);
             //We need to close the channel because the initialization wasn't successful
             channelDependencies.getMqttServerDisconnector().logAndClose(ctx.channel(),
@@ -150,5 +152,4 @@ public abstract class AbstractChannelInitializer extends ChannelInitializer<Chan
             super.exceptionCaught(ctx, cause);
         }
     }
-
 }

@@ -32,6 +32,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import util.DummyClientConnection;
 import util.TestMqttDecoder;
 
 import java.nio.channels.ClosedChannelException;
@@ -71,7 +72,7 @@ public class FlowControlHandlerTest {
     public void test_disconnect_after_receiving_to_many_qos_1_publishes() {
 
         final EmbeddedChannel channel = new EmbeddedChannel(TestMqttDecoder.create(), flowControlHandler);
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(new ClientConnection(channel, null));
+        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(new DummyClientConnection(channel, null));
         final PUBLISHFactory.Mqtt5Builder builder = new PUBLISHFactory.Mqtt5Builder();
         builder.withTopic("topic").withQoS(QoS.AT_LEAST_ONCE).withOnwardQos(QoS.AT_LEAST_ONCE).withUserProperties(Mqtt5UserProperties.NO_USER_PROPERTIES)
                 .withPayload(new byte[0]).withHivemqId("hivemqId1");
@@ -92,7 +93,7 @@ public class FlowControlHandlerTest {
     public void test_sending_publish_after_disconnect() {
 
         final EmbeddedChannel channel = new EmbeddedChannel(TestMqttDecoder.create(), flowControlHandler);
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(new ClientConnection(channel, null));
+        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(new DummyClientConnection(channel, null));
 
         final PUBLISHFactory.Mqtt5Builder builder = new PUBLISHFactory.Mqtt5Builder();
         builder.withTopic("topic").withQoS(QoS.AT_LEAST_ONCE).withOnwardQos(QoS.AT_LEAST_ONCE).withUserProperties(Mqtt5UserProperties.NO_USER_PROPERTIES)
@@ -110,7 +111,7 @@ public class FlowControlHandlerTest {
     public void test_no_disconnect_after_receiving_to_9_publishes_than_sending_9_pubacks() {
 
         final EmbeddedChannel channel = new EmbeddedChannel(TestMqttDecoder.create(), flowControlHandler);
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(new ClientConnection(channel, null));
+        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(new DummyClientConnection(channel, null));
 
         final PUBLISHFactory.Mqtt5Builder builder = new PUBLISHFactory.Mqtt5Builder();
         builder.withTopic("topic").withQoS(QoS.AT_LEAST_ONCE).withOnwardQos(QoS.AT_LEAST_ONCE).withUserProperties(Mqtt5UserProperties.NO_USER_PROPERTIES)
@@ -140,7 +141,7 @@ public class FlowControlHandlerTest {
     public void test_quota_not_exceeding_max_value() {
 
         final EmbeddedChannel channel = new EmbeddedChannel(TestMqttDecoder.create(), flowControlHandler);
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(new ClientConnection(channel, null));
+        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(new DummyClientConnection(channel, null));
 
         final PUBLISHFactory.Mqtt5Builder builder = new PUBLISHFactory.Mqtt5Builder();
         builder.withTopic("topic").withQoS(QoS.AT_LEAST_ONCE).withOnwardQos(QoS.AT_LEAST_ONCE).withUserProperties(Mqtt5UserProperties.NO_USER_PROPERTIES)
@@ -167,7 +168,7 @@ public class FlowControlHandlerTest {
     public void test_no_disconnect_after_receiving_to_10_publishes_than_sending_10_pubcomps() {
 
         final EmbeddedChannel channel = new EmbeddedChannel(TestMqttDecoder.create(), flowControlHandler);
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(new ClientConnection(channel, null));
+        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(new DummyClientConnection(channel, null));
 
         final PUBLISHFactory.Mqtt5Builder builder = new PUBLISHFactory.Mqtt5Builder();
         builder.withTopic("topic").withQoS(QoS.EXACTLY_ONCE).withOnwardQos(QoS.EXACTLY_ONCE).withUserProperties(Mqtt5UserProperties.NO_USER_PROPERTIES)
@@ -197,7 +198,7 @@ public class FlowControlHandlerTest {
     public void test_no_disconnect_after_receiving_to_10_publishes_than_sending_10_pubrecs_with_failure_code() {
 
         final EmbeddedChannel channel = new EmbeddedChannel(TestMqttDecoder.create(), flowControlHandler);
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(new ClientConnection(channel, null));
+        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(new DummyClientConnection(channel, null));
 
         final PUBLISHFactory.Mqtt5Builder builder = new PUBLISHFactory.Mqtt5Builder();
         builder.withTopic("topic").withQoS(QoS.EXACTLY_ONCE).withOnwardQos(QoS.EXACTLY_ONCE).withUserProperties(Mqtt5UserProperties.NO_USER_PROPERTIES)
@@ -227,7 +228,7 @@ public class FlowControlHandlerTest {
     public void test_disconnect_after_receiving_to_10_publishes_than_sending_10_pubrecs_with_success_pub() {
 
         final EmbeddedChannel channel = new EmbeddedChannel(TestMqttDecoder.create(), flowControlHandler);
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(new ClientConnection(channel, null));
+        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(new DummyClientConnection(channel, null));
 
         final PUBLISHFactory.Mqtt5Builder builder = new PUBLISHFactory.Mqtt5Builder();
         builder.withTopic("topic").withQoS(QoS.EXACTLY_ONCE).withOnwardQos(QoS.EXACTLY_ONCE).withUserProperties(Mqtt5UserProperties.NO_USER_PROPERTIES)

@@ -16,6 +16,7 @@
 package com.hivemq.bootstrap.netty.initializer;
 
 import com.hivemq.bootstrap.ClientConnection;
+import com.hivemq.bootstrap.UndefinedClientConnection;
 import com.hivemq.bootstrap.netty.ChannelDependencies;
 import com.hivemq.common.shutdown.ShutdownHooks;
 import com.hivemq.configuration.service.FullConfigurationService;
@@ -27,7 +28,10 @@ import com.hivemq.logging.EventLog;
 import com.hivemq.mqtt.handler.disconnect.MqttServerDisconnector;
 import com.hivemq.mqtt.handler.disconnect.MqttServerDisconnectorImpl;
 import com.hivemq.security.exception.SslException;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.ChannelPipeline;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -39,6 +43,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.stubbing.Answer;
+import util.DummyClientConnection;
 import util.TestChannelAttribute;
 
 import java.util.concurrent.CountDownLatch;
@@ -85,7 +90,8 @@ public class AbstractChannelInitializerTest {
     public void before() {
         MockitoAnnotations.initMocks(this);
 
-        when(socketChannel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME)).thenReturn(new TestChannelAttribute<>(new ClientConnection(socketChannel, null)));
+        when(socketChannel.attr(UndefinedClientConnection.CHANNEL_ATTRIBUTE_NAME))
+                .thenReturn(new TestChannelAttribute<>(null));
         when(socketChannel.pipeline()).thenReturn(pipeline);
         when(socketChannel.isActive()).thenReturn(true);
 
@@ -247,7 +253,7 @@ public class AbstractChannelInitializerTest {
 
         @Override
         protected void initChannel(@NotNull final Channel ch) throws Exception {
-            ch.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(new ClientConnection(ch, null));
+            ch.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(new DummyClientConnection(ch, null));
             addSpecialHandlers(ch);
         }
 

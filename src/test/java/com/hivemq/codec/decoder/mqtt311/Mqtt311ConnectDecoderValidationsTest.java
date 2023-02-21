@@ -31,6 +31,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import util.DummyClientConnection;
 import util.TestChannelAttribute;
 import util.TestConfigurationBootstrap;
 
@@ -57,8 +58,8 @@ public class Mqtt311ConnectDecoderValidationsTest {
 
         MockitoAnnotations.initMocks(this);
 
-        clientConnection = new ClientConnection(channel, null);
-        when(channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME)).thenReturn(new TestChannelAttribute<>(new ClientConnection(channel, null)));
+        clientConnection = new DummyClientConnection(channel, null);
+        when(channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME)).thenReturn(new TestChannelAttribute<>(new DummyClientConnection(channel, null)));
 
         decoder = new Mqtt311ConnectDecoder(connacker,
                 new ClientIds(new HivemqId()),

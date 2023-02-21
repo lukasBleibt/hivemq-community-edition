@@ -15,7 +15,7 @@
  */
 package com.hivemq.bootstrap.netty;
 
-import com.hivemq.bootstrap.ClientConnection;
+import com.hivemq.bootstrap.ClientConnectionContext;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.mqtt.handler.disconnect.MqttServerDisconnector;
 import com.hivemq.mqtt.message.reason.Mqtt5DisconnectReasonCode;
@@ -90,10 +90,8 @@ public class ExceptionHandler extends ChannelHandlerAdapter {
             //do not log IllegalArgumentException as error
 
         } else {
-            final ClientConnection clientConnection = channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
-            final Optional<String> channelIP = (clientConnection == null)
-                    ? Optional.empty()
-                    : clientConnection.getChannelIP();
+            final ClientConnectionContext clientConnectionContext = ClientConnectionContext.get(channel);
+            final Optional<String> channelIP = clientConnectionContext.getChannelIP();
 
             log.error("An unexpected error occurred for client with IP {}: {}",
                     channelIP.orElse("UNKNOWN"), ExceptionUtils.getStackTrace(cause));

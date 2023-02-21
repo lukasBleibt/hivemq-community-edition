@@ -31,6 +31,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.embedded.EmbeddedChannel;
 import org.junit.Before;
 import org.junit.Test;
+import util.DummyClientConnection;
 import util.TestConfigurationBootstrap;
 import util.TestMqttDecoder;
 
@@ -38,7 +39,6 @@ import java.nio.charset.StandardCharsets;
 
 import static com.hivemq.mqtt.message.connack.Mqtt5CONNACK.DEFAULT_MAXIMUM_PACKET_SIZE_NO_LIMIT;
 import static com.hivemq.mqtt.message.connect.Mqtt5CONNECT.*;
-import static com.hivemq.mqtt.message.connect.MqttWillPublish.WILL_DELAY_INTERVAL_NOT_SET;
 import static org.junit.Assert.*;
 
 /**
@@ -1358,7 +1358,7 @@ public class Mqtt5ConnectDecoderTest extends AbstractMqtt5DecoderTest {
         final FullConfigurationService fullConfig = new TestConfigurationBootstrap().getFullConfigurationService();
         fullConfig.securityConfiguration().setAllowServerAssignedClientId(false);
         channel = new EmbeddedChannel(TestMqttDecoder.create(fullConfig));
-        clientConnection = new ClientConnection(channel, null);
+        clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         final byte[] encoded = {
                 // fixed header

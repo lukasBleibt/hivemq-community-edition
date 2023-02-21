@@ -26,6 +26,7 @@ import io.netty.util.Attribute;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.Before;
 import org.junit.Test;
+import util.DummyClientConnection;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -56,7 +57,7 @@ public class ConnectionAttributeStoreImplTest {
         connectionAttributes = new ConnectionAttributes(1000);
         connectionAttributeStore = new ConnectionAttributeStoreImpl(channel);
 
-        clientConnection = new ClientConnection(channel, mock(PublishFlushHandler.class));
+        clientConnection = new DummyClientConnection(channel, mock(PublishFlushHandler.class));
 
         //noinspection unchecked
         final Attribute<ClientConnection> clientConnectionAttribute = mock(Attribute.class);
@@ -84,7 +85,7 @@ public class ConnectionAttributeStoreImplTest {
         final ByteBuffer value1 = ByteBuffer.wrap("test.value1".getBytes());
         final ByteBuffer value2 = ByteBuffer.wrap("test.value2".getBytes());
 
-        clientConnection.setConnectionAttributes(connectionAttributes);
+        clientConnection.setConnectionAttributesIfAbsent(connectionAttributes);
 
         connectionAttributeStore.put(key, value1);
         connectionAttributeStore.put(key, value2);
@@ -98,9 +99,6 @@ public class ConnectionAttributeStoreImplTest {
     public void test_put_attribute_not_present() {
         final String key = "test.key";
         final ByteBuffer value = ByteBuffer.wrap("test.value".getBytes());
-
-        clientConnection = new ClientConnection(channel, mock(PublishFlushHandler.class));
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
 
         connectionAttributeStore.put(key, value);
         assertNotNull(clientConnection.getConnectionAttributes());
@@ -133,7 +131,7 @@ public class ConnectionAttributeStoreImplTest {
         final String key = "test.key";
         final String value = "test.value";
 
-        clientConnection.setConnectionAttributes(connectionAttributes);
+        clientConnection.setConnectionAttributesIfAbsent(connectionAttributes);
 
         connectionAttributeStore.putAsString(key, value);
 
@@ -148,7 +146,7 @@ public class ConnectionAttributeStoreImplTest {
         final String value1 = "test.value1";
         final String value2 = "test.value2";
 
-        clientConnection.setConnectionAttributes(connectionAttributes);
+        clientConnection.setConnectionAttributesIfAbsent(connectionAttributes);
 
         connectionAttributeStore.putAsString(key, value1);
         connectionAttributeStore.putAsString(key, value2);
@@ -162,9 +160,6 @@ public class ConnectionAttributeStoreImplTest {
     public void test_putAsString_attribute_not_present() {
         final String key = "test.key";
         final String value = "test.value";
-
-        clientConnection = new ClientConnection(channel, mock(PublishFlushHandler.class));
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
 
         connectionAttributeStore.putAsString(key, value);
         assertNotNull(clientConnection.getConnectionAttributes());
@@ -198,7 +193,7 @@ public class ConnectionAttributeStoreImplTest {
         final String value = "test.value";
         final Charset charset = StandardCharsets.ISO_8859_1;
 
-        clientConnection.setConnectionAttributes(connectionAttributes);
+        clientConnection.setConnectionAttributesIfAbsent(connectionAttributes);
 
         connectionAttributeStore.putAsString(key, value, charset);
 
@@ -214,7 +209,7 @@ public class ConnectionAttributeStoreImplTest {
         final String value2 = "test.value2";
         final Charset charset = StandardCharsets.ISO_8859_1;
 
-        clientConnection.setConnectionAttributes(connectionAttributes);
+        clientConnection.setConnectionAttributesIfAbsent(connectionAttributes);
 
         connectionAttributeStore.putAsString(key, value1, charset);
         connectionAttributeStore.putAsString(key, value2, charset);
@@ -229,9 +224,6 @@ public class ConnectionAttributeStoreImplTest {
         final String key = "test.key";
         final String value = "test.value";
         final Charset charset = StandardCharsets.ISO_8859_1;
-
-        clientConnection = new ClientConnection(channel, mock(PublishFlushHandler.class));
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
 
         connectionAttributeStore.putAsString(key, value, charset);
         assertNotNull(clientConnection.getConnectionAttributes());
@@ -275,7 +267,7 @@ public class ConnectionAttributeStoreImplTest {
     public void test_get_not_present() {
         final String key = "test.key";
 
-        clientConnection.setConnectionAttributes(connectionAttributes);
+        clientConnection.setConnectionAttributesIfAbsent(connectionAttributes);
 
         final Optional<ByteBuffer> returnValue = connectionAttributeStore.get(key);
 
@@ -306,7 +298,7 @@ public class ConnectionAttributeStoreImplTest {
         final String key = "test.key";
         final String value = "test.value";
 
-        clientConnection.setConnectionAttributes(connectionAttributes);
+        clientConnection.setConnectionAttributesIfAbsent(connectionAttributes);
 
         connectionAttributes.put(key, ByteBuffer.wrap(value.getBytes()));
 
@@ -320,7 +312,7 @@ public class ConnectionAttributeStoreImplTest {
     public void test_getAsString_not_present() {
         final String key = "test.key";
 
-        clientConnection.setConnectionAttributes(connectionAttributes);
+        clientConnection.setConnectionAttributesIfAbsent(connectionAttributes);
 
         final Optional<String> returnValue = connectionAttributeStore.getAsString(key);
 
@@ -352,7 +344,7 @@ public class ConnectionAttributeStoreImplTest {
         final String value = "test.value";
         final Charset charset = StandardCharsets.ISO_8859_1;
 
-        clientConnection.setConnectionAttributes(connectionAttributes);
+        clientConnection.setConnectionAttributesIfAbsent(connectionAttributes);
 
         connectionAttributes.put(key, ByteBuffer.wrap(value.getBytes(charset)));
 
@@ -367,7 +359,7 @@ public class ConnectionAttributeStoreImplTest {
         final String key = "test.key";
         final Charset charset = StandardCharsets.ISO_8859_1;
 
-        clientConnection.setConnectionAttributes(connectionAttributes);
+        clientConnection.setConnectionAttributesIfAbsent(connectionAttributes);
 
         final Optional<String> returnValue = connectionAttributeStore.getAsString(key, charset);
 
@@ -379,7 +371,7 @@ public class ConnectionAttributeStoreImplTest {
         final String key = "test.key";
         final Charset charset = StandardCharsets.ISO_8859_1;
 
-        clientConnection.setConnectionAttributes(null);
+        clientConnection.setConnectionAttributesIfAbsent(null);
 
         final Optional<String> returnValue = connectionAttributeStore.getAsString(key, charset);
 
@@ -411,7 +403,7 @@ public class ConnectionAttributeStoreImplTest {
                 "test.key2",
                 ByteBuffer.wrap("test.value2".getBytes()));
 
-        clientConnection.setConnectionAttributes(connectionAttributes);
+        clientConnection.setConnectionAttributesIfAbsent(connectionAttributes);
 
         for (final Map.Entry<String, ByteBuffer> entry : values.entrySet()) {
             connectionAttributeStore.put(entry.getKey(), entry.getValue());
@@ -437,7 +429,7 @@ public class ConnectionAttributeStoreImplTest {
         final String key = "test.key";
         final ByteBuffer value = ByteBuffer.wrap("test.value".getBytes());
 
-        clientConnection.setConnectionAttributes(connectionAttributes);
+        clientConnection.setConnectionAttributesIfAbsent(connectionAttributes);
 
         connectionAttributes.put(key, value);
         connectionAttributes.put("test.key2", ByteBuffer.wrap("test.value2".getBytes()));
@@ -453,7 +445,7 @@ public class ConnectionAttributeStoreImplTest {
         final String key = "test.key";
         final ByteBuffer value = ByteBuffer.wrap("test.value".getBytes());
 
-        clientConnection.setConnectionAttributes(connectionAttributes);
+        clientConnection.setConnectionAttributesIfAbsent(connectionAttributes);
 
         connectionAttributes.put(key, value);
 
@@ -467,7 +459,7 @@ public class ConnectionAttributeStoreImplTest {
     public void test_remove_not_present() {
         final String key = "test.key";
 
-        clientConnection.setConnectionAttributes(connectionAttributes);
+        clientConnection.setConnectionAttributesIfAbsent(connectionAttributes);
 
         final Optional<ByteBuffer> returnValue = connectionAttributeStore.remove(key);
 
@@ -500,7 +492,7 @@ public class ConnectionAttributeStoreImplTest {
         final ByteBuffer value1 = ByteBuffer.wrap("test.value1".getBytes());
         final ByteBuffer value2 = ByteBuffer.wrap("test.value2".getBytes());
 
-        clientConnection.setConnectionAttributes(connectionAttributes);
+        clientConnection.setConnectionAttributesIfAbsent(connectionAttributes);
 
         connectionAttributeStore.put(key1, value1);
         connectionAttributeStore.put(key2, value2);
@@ -512,7 +504,7 @@ public class ConnectionAttributeStoreImplTest {
 
     @Test
     public void test_clear_not_present() {
-        clientConnection.setConnectionAttributes(connectionAttributes);
+        clientConnection.setConnectionAttributesIfAbsent(connectionAttributes);
 
         connectionAttributeStore.clear();
 
@@ -533,7 +525,7 @@ public class ConnectionAttributeStoreImplTest {
         final int THREADS = 100;
         final int EXECUTIONS = 100;
 
-        clientConnection.setConnectionAttributes(connectionAttributes);
+        clientConnection.setConnectionAttributesIfAbsent(connectionAttributes);
 
         final Random random = new Random();
 
@@ -631,7 +623,7 @@ public class ConnectionAttributeStoreImplTest {
         }
     }
 
-    private static abstract class ExceptionCountRunnable implements Runnable {
+    private abstract static class ExceptionCountRunnable implements Runnable {
 
         private final AtomicInteger exceptionCount = new AtomicInteger();
         private final int runCount;

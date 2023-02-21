@@ -39,7 +39,6 @@ import com.hivemq.mqtt.message.reason.Mqtt5DisconnectReasonCode;
 import com.hivemq.mqtt.message.reason.Mqtt5PubAckReasonCode;
 import com.hivemq.mqtt.message.reason.Mqtt5PubRecReasonCode;
 import com.hivemq.mqtt.services.InternalPublishService;
-
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -50,10 +49,7 @@ import org.junit.rules.ErrorCollector;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import util.CheckUserEventTriggeredOnSuper;
-import util.TestConfigurationBootstrap;
-import util.TestException;
-import util.TestMessageUtil;
+import util.*;
 
 import java.util.concurrent.ExecutorService;
 
@@ -77,7 +73,7 @@ public class IncomingPublishServiceTest {
     private EmbeddedChannel channel;
     private ChannelHandlerContext ctx;
     private IncomingPublishService incomingPublishService;
-    private final ClientConnection clientConnection = new ClientConnection(channel, null);
+    private final ClientConnection clientConnection = new DummyClientConnection(channel, null);
 
     @Before
     public void setUp() throws Exception {

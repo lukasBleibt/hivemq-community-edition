@@ -33,6 +33,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import util.DummyClientConnection;
 import util.TestChannelAttribute;
 import util.TestConfigurationBootstrap;
 
@@ -70,7 +71,7 @@ public class Mqtt31ConnectDecoderValidationsTest {
                 new TestConfigurationBootstrap().getFullConfigurationService(),
                 new HivemqId());
 
-        clientConnection = new ClientConnection(channel, null);
+        clientConnection = new DummyClientConnection(channel, null);
         when(channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME)).thenReturn(new TestChannelAttribute<>(clientConnection));
     }
 

@@ -15,7 +15,7 @@
  */
 package com.hivemq.logging;
 
-import com.hivemq.bootstrap.ClientConnection;
+import com.hivemq.bootstrap.ClientConnectionContext;
 import com.hivemq.bootstrap.ioc.lazysingleton.LazySingleton;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.annotations.Nullable;
@@ -101,10 +101,10 @@ public class EventLog {
      * @param cleanStart if the connection was started clean
      */
     public void clientConnected(final @NotNull Channel channel, final boolean cleanStart) {
-        final ClientConnection clientConnection = channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
-        final String clientId = clientConnection.getClientId();
-        final String ip = clientConnection.getChannelIP().orElse(null);
-        final Long sessionExpiry = clientConnection.getClientSessionExpiryInterval();
+        final ClientConnectionContext clientConnectionContext = ClientConnectionContext.get(channel);
+        final String clientId = clientConnectionContext.getClientId();
+        final String ip = clientConnectionContext.getChannelIP().orElse(null);
+        final Long sessionExpiry = clientConnectionContext.getClientSessionExpiryInterval();
 
         logClientConnected.debug("Client ID: {}, IP: {}, Clean Start: {}, Session Expiry: {} connected.", valueOrUnknown(clientId), valueOrUnknown(ip), valueOrUnknown(cleanStart), valueOrUnknown(sessionExpiry));
     }
@@ -113,14 +113,14 @@ public class EventLog {
      * Log that the connection to a client was closed gracefully, regardless if the connection was closed by the client
      * or the server.
      *
-     * @param clientConnection the connection to the client.
-     * @param reason           reason specified by the client for the DISCONNECT.
+     * @param clientConnectionContext the connection to the client.
+     * @param reason                  reason specified by the client for the DISCONNECT.
      */
     public void clientDisconnectedGracefully(
-            final @NotNull ClientConnection clientConnection, final @Nullable String reason) {
+            final @NotNull ClientConnectionContext clientConnectionContext, final @Nullable String reason) {
 
-        final String clientId = clientConnection.getClientId();
-        final String ip = clientConnection.getChannelIP().orElse(null);
+        final String clientId = clientConnectionContext.getClientId();
+        final String ip = clientConnectionContext.getChannelIP().orElse(null);
 
         if (log.isTraceEnabled()) {
             log.trace("Client {} disconnected gracefully.", clientId);
@@ -136,11 +136,11 @@ public class EventLog {
      * Log that the connection to a client was closed ungracefully, regardless if the connection was closed by the
      * client or the server.
      *
-     * @param clientConnection the connection to the client.
+     * @param clientConnectionContext the connection to the client.
      */
-    public void clientDisconnectedUngracefully(final @NotNull ClientConnection clientConnection) {
-        final String clientId = clientConnection.getClientId();
-        final String ip = clientConnection.getChannelIP().orElse(null);
+    public void clientDisconnectedUngracefully(final @NotNull ClientConnectionContext clientConnectionContext) {
+        final String clientId = clientConnectionContext.getClientId();
+        final String ip = clientConnectionContext.getChannelIP().orElse(null);
 
         if (log.isTraceEnabled()) {
             log.trace("Client {} disconnected ungracefully.", clientId);
@@ -155,9 +155,9 @@ public class EventLog {
      * @param reason  why the connection was closed
      */
     public void clientWasDisconnected(@NotNull final Channel channel, @NotNull final String reason) {
-        final ClientConnection clientConnection = channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
-        final String clientId = clientConnection.getClientId();
-        final String ip = clientConnection.getChannelIP().orElse(null);
+        final ClientConnectionContext clientConnectionContext = ClientConnectionContext.get(channel);
+        final String clientId = clientConnectionContext.getClientId();
+        final String ip = clientConnectionContext.getChannelIP().orElse(null);
         if (log.isTraceEnabled()) {
             log.trace("Client {} was disconnected.", clientId);
         }
@@ -171,9 +171,9 @@ public class EventLog {
      * @param reasonCode of the AUTH packet.
      */
     public void clientAuthentication(@NotNull final Channel channel, @NotNull final Mqtt5AuthReasonCode reasonCode, final boolean received) {
-        final ClientConnection clientConnection = channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
-        final String clientId = clientConnection.getClientId();
-        final String ip = clientConnection.getChannelIP().orElse(null);
+        final ClientConnectionContext clientConnectionContext = ClientConnectionContext.get(channel);
+        final String clientId = clientConnectionContext.getClientId();
+        final String ip = clientConnectionContext.getChannelIP().orElse(null);
         if (received) {
             logAuthentication.debug("Received AUTH from Client ID: {}, IP: {}, reason code: {}.", valueOrUnknown(clientId), valueOrUnknown(ip), reasonCode.name());
         } else {

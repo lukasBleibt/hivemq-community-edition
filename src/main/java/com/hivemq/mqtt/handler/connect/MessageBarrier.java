@@ -16,7 +16,7 @@
 package com.hivemq.mqtt.handler.connect;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.hivemq.bootstrap.ClientConnection;
+import com.hivemq.bootstrap.ClientConnectionContext;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.mqtt.handler.disconnect.MqttServerDisconnector;
 import com.hivemq.mqtt.message.Message;
@@ -104,13 +104,11 @@ public class MessageBarrier extends ChannelDuplexHandler {
 
     private static void suspendRead(final @NotNull Channel channel) {
         if (log.isTraceEnabled()) {
-            final ClientConnection clientConnection = channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
-            final Optional<String> channelIP = (clientConnection == null)
-                    ? Optional.empty()
-                    : clientConnection.getChannelIP();
+            final ClientConnectionContext clientConnectionContext = ClientConnectionContext.get(channel);
+            final Optional<String> channelIP = clientConnectionContext.getChannelIP();
 
             log.trace("Suspending read operations for MQTT client with id {} and IP {}",
-                    clientConnection.getClientId(),
+                    clientConnectionContext.getClientId(),
                     channelIP.orElse("UNKNOWN"));
         }
         channel.config().setAutoRead(false);
@@ -118,13 +116,11 @@ public class MessageBarrier extends ChannelDuplexHandler {
 
     private static void resumeRead(final @NotNull Channel channel) {
         if (log.isTraceEnabled()) {
-            final ClientConnection clientConnection = channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
-            final Optional<String> channelIP = (clientConnection == null)
-                    ? Optional.empty()
-                    : clientConnection.getChannelIP();
+            final ClientConnectionContext clientConnectionContext = ClientConnectionContext.get(channel);
+            final Optional<String> channelIP = clientConnectionContext.getChannelIP();
 
             log.trace("Restarting read operations for MQTT client with id {} and IP {}",
-                    clientConnection.getClientId(),
+                    clientConnectionContext.getClientId(),
                     channelIP.orElse("UNKNOWN"));
         }
         channel.config().setAutoRead(true);

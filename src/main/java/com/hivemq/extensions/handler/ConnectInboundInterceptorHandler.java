@@ -17,7 +17,7 @@
 package com.hivemq.extensions.handler;
 
 import com.google.common.collect.ImmutableMap;
-import com.hivemq.bootstrap.ClientConnection;
+import com.hivemq.bootstrap.ClientConnectionContext;
 import com.hivemq.configuration.HivemqId;
 import com.hivemq.configuration.service.FullConfigurationService;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
@@ -99,8 +99,8 @@ public class ConnectInboundInterceptorHandler {
 
     public void handleInboundConnect(final @NotNull ChannelHandlerContext ctx, final @NotNull CONNECT connect) {
         final Channel channel = ctx.channel();
-        final ClientConnection clientConnection = channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
-        final String clientId = clientConnection.getClientId();
+        final ClientConnectionContext clientConnectionContext = ClientConnectionContext.get(channel);
+        final String clientId = clientConnectionContext.getClientId();
         if (clientId == null) {
             return;
         }
@@ -119,7 +119,7 @@ public class ConnectInboundInterceptorHandler {
                 new ConnectInboundProviderInputImpl(serverInformation, clientInfo, connectionInfo);
 
         final long timestamp =
-                Objects.requireNonNullElse(clientConnection.getConnectReceivedTimestamp(),
+                Objects.requireNonNullElse(clientConnectionContext.getConnectReceivedTimestamp(),
                         System.currentTimeMillis());
         final ConnectPacketImpl packet = new ConnectPacketImpl(connect, timestamp);
         final ConnectInboundInputImpl input = new ConnectInboundInputImpl(clientInfo, connectionInfo, packet);
@@ -213,13 +213,13 @@ public class ConnectInboundInterceptorHandler {
                         reasonString);
             } else {
                 final CONNECT connect = CONNECT.from(inputHolder.get().getConnectPacket(), hivemqId.get());
-                final ClientConnection clientConnection = ctx.channel().attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
-                clientConnection.setClientId(connect.getClientIdentifier());
-                clientConnection.setExtensionClientInformation(new ClientInformationImpl(connect.getClientIdentifier()));
-                clientConnection.setCleanStart(connect.isCleanStart());
-                clientConnection.setConnectKeepAlive(connect.getKeepAlive());
-                clientConnection.setAuthUsername(connect.getUsername());
-                clientConnection.setAuthPassword(connect.getPassword());
+                final ClientConnectionContext clientConnectionContext = ClientConnectionContext.get(ctx.channel());
+                clientConnectionContext.setClientId(connect.getClientIdentifier());
+                clientConnectionContext.setExtensionClientInformation(new ClientInformationImpl(connect.getClientIdentifier()));
+                clientConnectionContext.setCleanStart(connect.isCleanStart());
+                clientConnectionContext.setConnectKeepAlive(connect.getKeepAlive());
+                clientConnectionContext.setAuthUsername(connect.getUsername());
+                clientConnectionContext.setAuthPassword(connect.getPassword());
 
                 ctx.fireChannelRead(connect);
             }

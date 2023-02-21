@@ -36,6 +36,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import util.DummyClientConnection;
 import util.TestChannelAttribute;
 import util.TestConfigurationBootstrap;
 
@@ -71,7 +72,7 @@ public class Mqtt311ConnectDecoderTest {
 
         MockitoAnnotations.initMocks(this);
 
-        clientConnection = new ClientConnection(channel, null);
+        clientConnection = new DummyClientConnection(channel, null);
         when(channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME)).thenReturn(new TestChannelAttribute<>(clientConnection));
 
         when(fullConfiguration.securityConfiguration()).thenReturn(securityConfigurationService);
@@ -103,8 +104,8 @@ public class Mqtt311ConnectDecoderTest {
         assertEquals(ProtocolVersion.MQTTv3_1_1, connectPacket.getProtocolVersion());
         assertEquals("clientId", connectPacket.getClientIdentifier());
         assertEquals(14, connectPacket.getKeepAlive());
-        assertEquals(true, connectPacket.isCleanStart());
-        assertEquals(null, connectPacket.getWillPublish());
+        assertTrue(connectPacket.isCleanStart());
+        assertNull(connectPacket.getWillPublish());
 
         assertNull(connectPacket.getPassword());
         assertNull(connectPacket.getUsername());
@@ -129,9 +130,9 @@ public class Mqtt311ConnectDecoderTest {
         assertEquals(ProtocolVersion.MQTTv3_1_1, connectPacket.getProtocolVersion());
         assertEquals("clientId", connectPacket.getClientIdentifier());
         assertEquals(14, connectPacket.getKeepAlive());
-        assertEquals(false, connectPacket.isCleanStart());
+        assertFalse(connectPacket.isCleanStart());
         assertEquals(SESSION_EXPIRY_MAX, connectPacket.getSessionExpiryInterval());
-        assertEquals(null, connectPacket.getWillPublish());
+        assertNull(connectPacket.getWillPublish());
 
         assertNull(connectPacket.getPassword());
         assertNull(connectPacket.getUsername());
@@ -158,9 +159,9 @@ public class Mqtt311ConnectDecoderTest {
         assertEquals(ProtocolVersion.MQTTv3_1_1, connectPacket.getProtocolVersion());
         assertEquals("clientId", connectPacket.getClientIdentifier());
         assertEquals(14, connectPacket.getKeepAlive());
-        assertEquals(false, connectPacket.isCleanStart());
+        assertFalse(connectPacket.isCleanStart());
         assertEquals(SESSION_EXPIRY_MAX, connectPacket.getSessionExpiryInterval());
-        assertEquals(null, connectPacket.getWillPublish());
+        assertNull(connectPacket.getWillPublish());
 
         assertEquals("username", connectPacket.getUsername());
         assertNull(connectPacket.getPassword());
@@ -189,9 +190,9 @@ public class Mqtt311ConnectDecoderTest {
         assertEquals(ProtocolVersion.MQTTv3_1_1, connectPacket.getProtocolVersion());
         assertEquals("clientId", connectPacket.getClientIdentifier());
         assertEquals(14, connectPacket.getKeepAlive());
-        assertEquals(false, connectPacket.isCleanStart());
+        assertFalse(connectPacket.isCleanStart());
         assertEquals(SESSION_EXPIRY_MAX, connectPacket.getSessionExpiryInterval());
-        assertEquals(null, connectPacket.getWillPublish());
+        assertNull(connectPacket.getWillPublish());
 
         assertEquals("username", connectPacket.getUsername());
         assertArrayEquals("password".getBytes(UTF_8), connectPacket.getPassword());
@@ -224,9 +225,9 @@ public class Mqtt311ConnectDecoderTest {
         assertEquals(ProtocolVersion.MQTTv3_1_1, connectPacket.getProtocolVersion());
         assertEquals("clientId", connectPacket.getClientIdentifier());
         assertEquals(14, connectPacket.getKeepAlive());
-        assertEquals(false, connectPacket.isCleanStart());
+        assertFalse(connectPacket.isCleanStart());
         assertEquals(SESSION_EXPIRY_MAX, connectPacket.getSessionExpiryInterval());
-        assertEquals(false, connectPacket.getWillPublish().isRetain());
+        assertFalse(connectPacket.getWillPublish().isRetain());
 
         assertEquals("username", connectPacket.getUsername());
         assertArrayEquals("password".getBytes(UTF_8), connectPacket.getPassword());
@@ -258,9 +259,9 @@ public class Mqtt311ConnectDecoderTest {
         assertEquals(ProtocolVersion.MQTTv3_1_1, connectPacket.getProtocolVersion());
         assertEquals("clientId", connectPacket.getClientIdentifier());
         assertEquals(14, connectPacket.getKeepAlive());
-        assertEquals(false, connectPacket.isCleanStart());
+        assertFalse(connectPacket.isCleanStart());
         assertEquals(SESSION_EXPIRY_MAX, connectPacket.getSessionExpiryInterval());
-        assertEquals(false, connectPacket.getWillPublish().isRetain());
+        assertFalse(connectPacket.getWillPublish().isRetain());
 
         assertNull(connectPacket.getUsername());
         assertNull(connectPacket.getPassword());
@@ -316,9 +317,9 @@ public class Mqtt311ConnectDecoderTest {
         assertEquals(ProtocolVersion.MQTTv3_1_1, connectPacket.getProtocolVersion());
         assertEquals("clientId", connectPacket.getClientIdentifier());
         assertEquals(14, connectPacket.getKeepAlive());
-        assertEquals(false, connectPacket.isCleanStart());
+        assertFalse(connectPacket.isCleanStart());
         assertEquals(SESSION_EXPIRY_MAX, connectPacket.getSessionExpiryInterval());
-        assertEquals(false, connectPacket.getWillPublish().isRetain());
+        assertFalse(connectPacket.getWillPublish().isRetain());
 
         assertNull(connectPacket.getUsername());
         assertNull(connectPacket.getPassword());
@@ -350,9 +351,9 @@ public class Mqtt311ConnectDecoderTest {
         assertEquals(ProtocolVersion.MQTTv3_1_1, connectPacket.getProtocolVersion());
         assertEquals("clientId", connectPacket.getClientIdentifier());
         assertEquals(14, connectPacket.getKeepAlive());
-        assertEquals(false, connectPacket.isCleanStart());
+        assertFalse(connectPacket.isCleanStart());
         assertEquals(SESSION_EXPIRY_MAX, connectPacket.getSessionExpiryInterval());
-        assertEquals(true, connectPacket.getWillPublish().isRetain());
+        assertTrue(connectPacket.getWillPublish().isRetain());
 
         assertNull(connectPacket.getUsername());
         assertNull(connectPacket.getPassword());
@@ -382,10 +383,10 @@ public class Mqtt311ConnectDecoderTest {
         assertEquals(ProtocolVersion.MQTTv3_1_1, connectPacket.getProtocolVersion());
         assertEquals(randomClientId, connectPacket.getClientIdentifier());
         assertEquals(14, connectPacket.getKeepAlive());
-        assertEquals(true, connectPacket.isCleanStart());
+        assertTrue(connectPacket.isCleanStart());
         //clean session
         assertEquals(0, connectPacket.getSessionExpiryInterval());
-        assertEquals(null, connectPacket.getWillPublish());
+        assertNull(connectPacket.getWillPublish());
 
         assertNull(connectPacket.getPassword());
         assertNull(connectPacket.getUsername());

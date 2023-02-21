@@ -17,7 +17,7 @@ package com.hivemq.extensions.events.client.parameters;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Supplier;
-import com.hivemq.bootstrap.ClientConnection;
+import com.hivemq.bootstrap.ClientConnectionContext;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.annotations.Nullable;
 import com.hivemq.extension.sdk.api.client.parameter.ClientInformation;
@@ -50,7 +50,7 @@ public class ConnectionStartInputImpl implements ConnectionStartInput, PluginTas
         this.connect = connect;
         this.connectionInformation = ExtensionInformationUtil.getAndSetConnectionInformation(channel);
         this.clientInformation = ExtensionInformationUtil.getAndSetClientInformation(channel, connect.getClientIdentifier());
-        this.connectTimestamp = Objects.requireNonNullElse(channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().getConnectReceivedTimestamp(),
+        this.connectTimestamp = Objects.requireNonNullElse(ClientConnectionContext.get(channel).getConnectReceivedTimestamp(),
                 System.currentTimeMillis());
     }
 

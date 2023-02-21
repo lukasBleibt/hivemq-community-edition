@@ -54,7 +54,6 @@ import com.hivemq.mqtt.message.reason.Mqtt5PubAckReasonCode;
 import com.hivemq.mqtt.message.subscribe.SUBSCRIBE;
 import com.hivemq.mqtt.services.PublishPollService;
 import com.hivemq.persistence.qos.IncomingMessageFlowPersistence;
-
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
@@ -65,6 +64,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
+import util.DummyClientConnection;
 import util.IsolatedExtensionClassloaderUtil;
 import util.TestConfigurationBootstrap;
 import util.TestMessageUtil;
@@ -109,7 +109,7 @@ public class IncomingPublishHandlerTest {
         executor.postConstruct();
 
         channel = new EmbeddedChannel();
-        clientConnection = new ClientConnection(channel, publishFlushHandler);
+        clientConnection = new DummyClientConnection(channel, publishFlushHandler);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setClientId("test_client");
 
@@ -215,7 +215,7 @@ public class IncomingPublishHandlerTest {
             o = channel.readOutbound();
         }
 
-        assertEquals(PUBREC.class, o.getClass());
+        assertSame(PUBREC.class, o.getClass());
         assertNull(channel.readInbound());
 
         assertTrue(dropLatch.await(5, TimeUnit.SECONDS));
@@ -244,7 +244,7 @@ public class IncomingPublishHandlerTest {
             o = channel.readOutbound();
         }
 
-        assertEquals(PUBACK.class, o.getClass());
+        assertSame(PUBACK.class, o.getClass());
         assertNull(channel.readInbound());
 
         assertTrue(dropLatch.await(5, TimeUnit.SECONDS));
@@ -304,7 +304,7 @@ public class IncomingPublishHandlerTest {
             o = channel.readOutbound();
         }
 
-        assertEquals(PUBREC.class, o.getClass());
+        assertSame(PUBREC.class, o.getClass());
         assertNull(channel.readInbound());
 
         assertTrue(dropLatch.await(5, TimeUnit.SECONDS));
@@ -333,7 +333,7 @@ public class IncomingPublishHandlerTest {
             o = channel.readOutbound();
         }
 
-        assertEquals(PUBACK.class, o.getClass());
+        assertSame(PUBACK.class, o.getClass());
         assertNull(channel.readInbound());
 
         assertTrue(dropLatch.await(5, TimeUnit.SECONDS));

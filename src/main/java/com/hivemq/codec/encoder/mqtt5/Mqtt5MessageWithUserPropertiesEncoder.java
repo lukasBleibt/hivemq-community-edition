@@ -16,7 +16,7 @@
 package com.hivemq.codec.encoder.mqtt5;
 
 import com.google.common.base.Preconditions;
-import com.hivemq.bootstrap.ClientConnection;
+import com.hivemq.bootstrap.ClientConnectionContext;
 import com.hivemq.codec.encoder.MqttEncoder;
 import com.hivemq.configuration.service.SecurityConfigurationService;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
@@ -66,23 +66,23 @@ abstract class Mqtt5MessageWithUserPropertiesEncoder<T extends Message> implemen
 
     @Override
     public void encode(
-            final @NotNull ClientConnection clientConnection, final @NotNull T msg, final @NotNull ByteBuf out) {
+            final @NotNull ClientConnectionContext clientConnectionContext, final @NotNull T msg, final @NotNull ByteBuf out) {
 
-        Preconditions.checkNotNull(clientConnection, "ClientConnection must never be null");
+        Preconditions.checkNotNull(clientConnectionContext, "ClientContext must never be null");
         Preconditions.checkNotNull(msg, "Message must never be null");
         Preconditions.checkNotNull(out, "ByteBuf must never be null");
 
         if (msg.getOmittedProperties() > 0) {
 
-            final String clientIdFromChannel = clientConnection.getClientId();
+            final String clientIdFromChannel = clientConnectionContext.getClientId();
             final String clientId = clientIdFromChannel != null ? clientIdFromChannel : "UNKNOWN";
 
-            final long maximumPacketSize = calculateMaxMessageSize(clientConnection);
+            final long maximumPacketSize = calculateMaxMessageSize(clientConnectionContext);
 
             //PUBLISH must not omit any properties
             if (msg instanceof PUBLISH) {
                 // The maximal packet size exceeds the clients accepted packet size
-                clientConnection.getChannel().pipeline().fireUserEventTriggered(new PublishDroppedEvent((PUBLISH) msg));
+                clientConnectionContext.getChannel().pipeline().fireUserEventTriggered(new PublishDroppedEvent((PUBLISH) msg));
                 messageDroppedService.publishMaxPacketSizeExceeded(clientId, ((PUBLISH) msg).getTopic(), ((PUBLISH) msg).getQoS().getQosNumber(), maximumPacketSize, msg.getEncodedLength());
                 if (log.isTraceEnabled()) {
                     log.trace("Could not encode publish message for client ({}): Maximum packet size limit exceeded", clientId);
@@ -103,13 +103,13 @@ abstract class Mqtt5MessageWithUserPropertiesEncoder<T extends Message> implemen
     }
 
     @Override
-    public int bufferSize(final @NotNull ClientConnection clientConnection, final @NotNull T msg) {
+    public int bufferSize(final @NotNull ClientConnectionContext clientConnectionContext, final @NotNull T msg) {
 
         int omittedProperties = 0;
         int propertyLength = calculatePropertyLength(msg);
 
         if (!securityConfigurationService.allowRequestProblemInformation()
-                || !Objects.requireNonNullElse(clientConnection.getRequestProblemInformation(), Mqtt5CONNECT.DEFAULT_PROBLEM_INFORMATION_REQUESTED)) {
+                || !Objects.requireNonNullElse(clientConnectionContext.getRequestProblemInformation(), Mqtt5CONNECT.DEFAULT_PROBLEM_INFORMATION_REQUESTED)) {
 
             //Must omit user properties and reason string for any other packet than PUBLISH, CONNACK, DISCONNECT
             //if no problem information requested.
@@ -123,7 +123,7 @@ abstract class Mqtt5MessageWithUserPropertiesEncoder<T extends Message> implemen
             }
         }
 
-        final long maximumPacketSize = calculateMaxMessageSize(clientConnection);
+        final long maximumPacketSize = calculateMaxMessageSize(clientConnectionContext);
         final int remainingLengthWithoutProperties = calculateRemainingLengthWithoutProperties(msg);
         int remainingLength = remainingLength(msg, remainingLengthWithoutProperties, propertyLength);
         int encodedLength = encodedPacketLength(remainingLength);
@@ -148,9 +148,9 @@ abstract class Mqtt5MessageWithUserPropertiesEncoder<T extends Message> implemen
         return encodedLength;
     }
 
-    private static long calculateMaxMessageSize(final @NotNull ClientConnection clientConnection) {
-        Preconditions.checkNotNull(clientConnection, "A ClientConnection must never be null");
-        final Long maxMessageSize = clientConnection.getMaxPacketSizeSend();
+    private static long calculateMaxMessageSize(final @NotNull ClientConnectionContext clientConnectionContext) {
+        Preconditions.checkNotNull(clientConnectionContext, "ClientContext must never be null");
+        final Long maxMessageSize = clientConnectionContext.getMaxPacketSizeSend();
         return Objects.requireNonNullElse(maxMessageSize, (long) MAXIMUM_PACKET_SIZE_LIMIT);
     }
 

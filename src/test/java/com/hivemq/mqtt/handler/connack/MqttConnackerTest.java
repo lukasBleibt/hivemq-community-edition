@@ -24,9 +24,9 @@ import com.hivemq.extensions.events.OnServerDisconnectEvent;
 import com.hivemq.logging.EventLog;
 import com.hivemq.mqtt.message.ProtocolVersion;
 import com.hivemq.mqtt.message.connack.CONNACK;
+import com.hivemq.mqtt.message.connect.CONNECT;
 import com.hivemq.mqtt.message.mqtt5.Mqtt5UserProperties;
 import com.hivemq.mqtt.message.reason.Mqtt5ConnAckReasonCode;
-
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -34,6 +34,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
+import util.DummyClientConnection;
 import util.DummyHandler;
 import util.LogbackCapturingAppender;
 
@@ -62,7 +63,7 @@ public class MqttConnackerTest {
         eventLog = mock(EventLog.class);
         mqttConnacker = new MqttConnackerImpl(eventLog);
         channel = new EmbeddedChannel(new DummyHandler());
-        clientConnection = new ClientConnection(channel, null);
+        clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         logbackCapturingAppender = LogbackCapturingAppender.Factory.weaveInto(LoggerFactory.getLogger(MqttConnackerImpl.class));
     }
@@ -107,7 +108,7 @@ public class MqttConnackerTest {
 
     @Test(timeout = 20000)
     public void test_connackError_mqtt_3_no_logs_no_reason_with_client_id() {
-        clientConnection = new ClientConnection(channel, null);
+        clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         clientConnection.setProtocolVersion(ProtocolVersion.MQTTv3_1_1);
         clientConnection.setClientId("luke_skywalker");
@@ -122,7 +123,7 @@ public class MqttConnackerTest {
 
     @Test(timeout = 20000)
     public void test_connackError_mqtt_3_with_logs_with_reason_with_client_id() {
-        final ClientConnection clientConnection = new ClientConnection(channel, null);
+        final ClientConnection clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         clientConnection.setProtocolVersion(ProtocolVersion.MQTTv3_1_1);
         clientConnection.setClientId("luke_skywalker");
@@ -138,7 +139,7 @@ public class MqttConnackerTest {
 
     @Test(timeout = 20000)
     public void test_connackError_mqtt_3_incompatible_reason_code_UNSPECIFIED_ERROR() {
-        final ClientConnection clientConnection = new ClientConnection(channel, null);
+        final ClientConnection clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         clientConnection.setProtocolVersion(ProtocolVersion.MQTTv3_1_1);
         clientConnection.setClientId("luke_skywalker");
@@ -152,7 +153,7 @@ public class MqttConnackerTest {
 
     @Test(timeout = 20000)
     public void test_connackError_mqtt_3_incompatible_reason_code_MALFORMED_PACKET() {
-        final ClientConnection clientConnection = new ClientConnection(channel, null);
+        final ClientConnection clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         clientConnection.setProtocolVersion(ProtocolVersion.MQTTv3_1_1);
         clientConnection.setClientId("luke_skywalker");
@@ -166,7 +167,7 @@ public class MqttConnackerTest {
 
     @Test(timeout = 20000)
     public void test_connackError_mqtt_3_incompatible_reason_code_PROTOCOL_ERROR() {
-        final ClientConnection clientConnection = new ClientConnection(channel, null);
+        final ClientConnection clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         clientConnection.setProtocolVersion(ProtocolVersion.MQTTv3_1_1);
         clientConnection.setClientId("luke_skywalker");
@@ -180,7 +181,7 @@ public class MqttConnackerTest {
 
     @Test(timeout = 20000)
     public void test_connackError_mqtt_3_incompatible_reason_code_IMPLEMENTATION_SPECIFIC_ERROR() {
-        final ClientConnection clientConnection = new ClientConnection(channel, null);
+        final ClientConnection clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         clientConnection.setProtocolVersion(ProtocolVersion.MQTTv3_1_1);
         clientConnection.setClientId("luke_skywalker");
@@ -194,7 +195,7 @@ public class MqttConnackerTest {
 
     @Test(timeout = 20000)
     public void test_connackError_mqtt_3_1_with_logs_with_reason_with_client_id() {
-        final ClientConnection clientConnection = new ClientConnection(channel, null);
+        final ClientConnection clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         clientConnection.setProtocolVersion(ProtocolVersion.MQTTv3_1);
         clientConnection.setClientId("luke_skywalker");
@@ -210,7 +211,7 @@ public class MqttConnackerTest {
 
     @Test(timeout = 20000)
     public void test_connackError_mqtt_3_1_incompatible_reason_code_UNSPECIFIED_ERROR() {
-        final ClientConnection clientConnection = new ClientConnection(channel, null);
+        final ClientConnection clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         clientConnection.setProtocolVersion(ProtocolVersion.MQTTv3_1);
         clientConnection.setClientId("luke_skywalker");
@@ -224,7 +225,7 @@ public class MqttConnackerTest {
 
     @Test(timeout = 20000)
     public void test_connackError_mqtt_3_1_incompatible_reason_code_MALFORMED_PACKET() {
-        final ClientConnection clientConnection = new ClientConnection(channel, null);
+        final ClientConnection clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         clientConnection.setProtocolVersion(ProtocolVersion.MQTTv3_1);
         clientConnection.setClientId("luke_skywalker");
@@ -238,7 +239,7 @@ public class MqttConnackerTest {
 
     @Test(timeout = 20000)
     public void test_connackError_mqtt_3_1_incompatible_reason_code_PROTOCOL_ERROR() {
-        final ClientConnection clientConnection = new ClientConnection(channel, null);
+        final ClientConnection clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         clientConnection.setProtocolVersion(ProtocolVersion.MQTTv3_1);
         clientConnection.setClientId("luke_skywalker");
@@ -252,7 +253,7 @@ public class MqttConnackerTest {
 
     @Test(timeout = 20000)
     public void test_connackError_mqtt_3_1_incompatible_reason_code_IMPLEMENTATION_SPECIFIC_ERROR() {
-        final ClientConnection clientConnection = new ClientConnection(channel, null);
+        final ClientConnection clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         clientConnection.setProtocolVersion(ProtocolVersion.MQTTv3_1);
         clientConnection.setClientId("luke_skywalker");
@@ -268,7 +269,7 @@ public class MqttConnackerTest {
     public void test_connackError_mqtt_3_1_without_reason_code() {
         InternalConfigurations.CONNACK_WITH_REASON_CODE_ENABLED.set(false);
         mqttConnacker = new MqttConnackerImpl(eventLog);
-        final ClientConnection clientConnection = new ClientConnection(channel, null);
+        final ClientConnection clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         clientConnection.setProtocolVersion(ProtocolVersion.MQTTv3_1);
         clientConnection.setClientId("luke_skywalker");
@@ -291,7 +292,7 @@ public class MqttConnackerTest {
                 }
             }
         });
-        final ClientConnection clientConnection = new ClientConnection(channel, null);
+        final ClientConnection clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         clientConnection.setProtocolVersion(ProtocolVersion.MQTTv3_1_1);
         clientConnection.proposeClientState(ClientState.AUTHENTICATING);
@@ -316,7 +317,7 @@ public class MqttConnackerTest {
                 }
             }
         });
-        final ClientConnection clientConnection = new ClientConnection(channel, null);
+        final ClientConnection clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         clientConnection.setProtocolVersion(ProtocolVersion.MQTTv3_1_1);
         clientConnection.proposeClientState(ClientState.AUTHENTICATING);
@@ -341,7 +342,7 @@ public class MqttConnackerTest {
                 }
             }
         });
-        final ClientConnection clientConnection = new ClientConnection(channel, null);
+        final ClientConnection clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         clientConnection.setProtocolVersion(ProtocolVersion.MQTTv5);
         clientConnection.proposeClientState(ClientState.AUTHENTICATING);
@@ -366,7 +367,7 @@ public class MqttConnackerTest {
                 }
             }
         });
-        final ClientConnection clientConnection = new ClientConnection(channel, null);
+        final ClientConnection clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         clientConnection.setProtocolVersion(ProtocolVersion.MQTTv5);
         clientConnection.proposeClientState(ClientState.AUTHENTICATING);
@@ -386,7 +387,7 @@ public class MqttConnackerTest {
     public void test_connackError_mqtt_5_without_reason_string() throws InterruptedException {
         InternalConfigurations.CONNACK_WITH_REASON_STRING_ENABLED.set(false);
         mqttConnacker = new MqttConnackerImpl(eventLog);
-        final ClientConnection clientConnection = new ClientConnection(channel, null);
+        final ClientConnection clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         clientConnection.setProtocolVersion(ProtocolVersion.MQTTv5);
         clientConnection.setClientId("luke_skywalker");
@@ -405,7 +406,7 @@ public class MqttConnackerTest {
     public void test_connackError_mqtt_5_without_reason_code() {
         InternalConfigurations.CONNACK_WITH_REASON_CODE_ENABLED.set(false);
         mqttConnacker = new MqttConnackerImpl(eventLog);
-        final ClientConnection clientConnection = new ClientConnection(channel, null);
+        final ClientConnection clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         clientConnection.setProtocolVersion(ProtocolVersion.MQTTv5);
         clientConnection.setClientId("luke_skywalker");
@@ -420,7 +421,7 @@ public class MqttConnackerTest {
     @Test(timeout = 20000)
     public void test_connackError_mqtt_5_with_auth_data_and_method() {
 
-        final ClientConnection clientConnection = new ClientConnection(channel, null);
+        final ClientConnection clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         clientConnection.setProtocolVersion(ProtocolVersion.MQTTv5);
         clientConnection.setClientId("luke_skywalker");
@@ -441,7 +442,7 @@ public class MqttConnackerTest {
     @Test(timeout = 20000)
     public void test_connackError_mqtt_5_with_auth_data_but_no_method() {
 
-        final ClientConnection clientConnection = new ClientConnection(channel, null);
+        final ClientConnection clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         clientConnection.setProtocolVersion(ProtocolVersion.MQTTv5);
         clientConnection.setClientId("luke_skywalker");
@@ -461,7 +462,7 @@ public class MqttConnackerTest {
     @Test(timeout = 20000)
     public void test_connackError_mqtt_5_with_no_auth_data_but_method() {
 
-        final ClientConnection clientConnection = new ClientConnection(channel, null);
+        final ClientConnection clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         clientConnection.setProtocolVersion(ProtocolVersion.MQTTv5);
         clientConnection.setClientId("luke_skywalker");
@@ -480,22 +481,27 @@ public class MqttConnackerTest {
 
     @Test(expected = NullPointerException.class)
     public void test_connackSuccess_ctx_null() {
-        mqttConnacker.connackSuccess(null, new CONNACK(Mqtt5ConnAckReasonCode.SUCCESS, null));
+        mqttConnacker.connackSuccess(null, new CONNACK(Mqtt5ConnAckReasonCode.SUCCESS, null),
+                mock(CONNECT.class));
     }
 
     @Test(expected = NullPointerException.class)
     public void test_connackSuccess_connack_null() {
-        mqttConnacker.connackSuccess(channel.pipeline().firstContext(), null);
+        mqttConnacker.connackSuccess(channel.pipeline().firstContext(), null, mock(CONNECT.class));
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void test_connackSuccess_connack_error_reason_code() {
-        mqttConnacker.connackSuccess(clientConnection.getChannel().pipeline().firstContext(), new CONNACK(Mqtt5ConnAckReasonCode.NOT_AUTHORIZED, null));
+        mqttConnacker.connackSuccess(clientConnection.getChannel().pipeline().firstContext(),
+                new CONNACK(Mqtt5ConnAckReasonCode.NOT_AUTHORIZED, null),
+                mock(CONNECT.class));
     }
 
     @Test
     public void test_connackSuccess() {
-        mqttConnacker.connackSuccess(clientConnection.getChannel().pipeline().firstContext(), new CONNACK(Mqtt5ConnAckReasonCode.SUCCESS, null));
+        mqttConnacker.connackSuccess(clientConnection.getChannel().pipeline().firstContext(),
+                new CONNACK(Mqtt5ConnAckReasonCode.SUCCESS, null),
+                mock(CONNECT.class));
 
         final CONNACK connack = channel.readOutbound();
         assertEquals(Mqtt5ConnAckReasonCode.SUCCESS, connack.getReasonCode());

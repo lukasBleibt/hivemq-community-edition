@@ -16,7 +16,7 @@
 package com.hivemq.extensions.auth.parameter;
 
 import com.google.common.base.Preconditions;
-import com.hivemq.bootstrap.ClientConnection;
+import com.hivemq.bootstrap.ClientConnectionContext;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.auth.parameter.PublishAuthorizerInput;
 import com.hivemq.extension.sdk.api.client.parameter.ClientInformation;
@@ -57,7 +57,7 @@ public class PublishAuthorizerInputImpl implements PublishAuthorizerInput, Plugi
         Preconditions.checkNotNull(channel, "channel must never be null");
         Preconditions.checkNotNull(clientId, "clientId must never be null");
 
-        final Long timestamp = Objects.requireNonNullElse(channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().getConnectReceivedTimestamp(),
+        final Long timestamp = Objects.requireNonNullElse(ClientConnectionContext.get(channel).getConnectReceivedTimestamp(),
                 System.currentTimeMillis());
         this.publishPacket = new WillPublishPacketImpl(publish, timestamp);
         this.clientInformation = ExtensionInformationUtil.getAndSetClientInformation(channel, clientId);

@@ -23,6 +23,7 @@ import com.hivemq.mqtt.message.ProtocolVersion;
 import com.hivemq.mqtt.message.mqtt5.MqttUserProperty;
 import io.netty.channel.embedded.EmbeddedChannel;
 import org.junit.Test;
+import util.DummyClientConnection;
 
 import java.util.Optional;
 
@@ -42,7 +43,7 @@ public class ClientInitiatedDisconnectInputImplTest {
     @Test
     public void test_construction_values_null() {
         final EmbeddedChannel channel = new EmbeddedChannel();
-        final ClientConnection clientConnection = new ClientConnection(channel, null);
+        final ClientConnection clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         clientConnection.setProtocolVersion(ProtocolVersion.MQTTv5);
         final ClientInitiatedDisconnectInputImpl disconnectInput = new ClientInitiatedDisconnectInputImpl("client", channel, null, null, null, false);
@@ -52,13 +53,13 @@ public class ClientInitiatedDisconnectInputImplTest {
         assertEquals(disconnectInput, disconnectInput.get());
         assertEquals("client", disconnectInput.getClientInformation().getClientId());
         assertNotNull(disconnectInput.getConnectionInformation());
-        assertEquals(false, disconnectInput.isGraceful());
+        assertFalse(disconnectInput.isGraceful());
     }
 
     @Test
     public void test_construction_values_set() {
         final EmbeddedChannel channel = new EmbeddedChannel();
-        final ClientConnection clientConnection = new ClientConnection(channel, null);
+        final ClientConnection clientConnection = new DummyClientConnection(channel, null);
         channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         clientConnection.setProtocolVersion(ProtocolVersion.MQTTv5);
         final ClientInitiatedDisconnectInputImpl disconnectInput =
@@ -70,6 +71,6 @@ public class ClientInitiatedDisconnectInputImplTest {
         assertEquals(disconnectInput, disconnectInput.get());
         assertEquals("client", disconnectInput.getClientInformation().getClientId());
         assertNotNull(disconnectInput.getConnectionInformation());
-        assertEquals(true, disconnectInput.isGraceful());
+        assertTrue(disconnectInput.isGraceful());
     }
 }
