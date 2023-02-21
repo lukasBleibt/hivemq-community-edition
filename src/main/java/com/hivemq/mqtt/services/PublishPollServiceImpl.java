@@ -99,7 +99,7 @@ public class PublishPollServiceImpl implements PublishPollService {
         checkNotNull(client, "Client must not be null");
         checkNotNull(channel, "Channel must not be null");
         // Null equal false, true will never be set
-        final ClientConnection clientConnection = channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
+        final ClientConnection clientConnection = ClientConnection.of(channel);
         final boolean inflightMessagesSent = clientConnection.isInFlightMessagesSent();
         if (inflightMessagesSent) {
             pollNewMessages(client, channel);
@@ -141,7 +141,7 @@ public class PublishPollServiceImpl implements PublishPollService {
 
     @Override
     public void pollNewMessages(final @NotNull String client, final @NotNull Channel channel) {
-        final MessageIDPool messageIDPool = channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().getMessageIDPool();
+        final MessageIDPool messageIDPool = ClientConnection.of(channel).getMessageIDPool();
         final ImmutableIntArray messageIds;
         try {
             messageIds = createMessageIds(messageIDPool, pollMessageLimit(channel));
@@ -189,7 +189,7 @@ public class PublishPollServiceImpl implements PublishPollService {
                         messageDroppedService.failed(client, publish.getTopic(), publish.getQoS().getQosNumber());
                     }
                 }
-                channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().getPublishFlushHandler().sendPublishes(publishesToSend);
+                ClientConnection.of(channel).getPublishFlushHandler().sendPublishes(publishesToSend);
             }
 
             @Override
@@ -207,7 +207,7 @@ public class PublishPollServiceImpl implements PublishPollService {
             @Override
             public void onSuccess(final ImmutableList<MessageWithID> messages) {
 
-                final ClientConnection clientConnection = channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
+                final ClientConnection clientConnection = ClientConnection.of(channel);
 
                 if (messages.isEmpty()) {
                     clientConnection.setInFlightMessagesSent(true);
@@ -274,7 +274,7 @@ public class PublishPollServiceImpl implements PublishPollService {
     }
 
     private AtomicInteger inFlightMessageCount(final @NotNull Channel channel) {
-        final ClientConnection clientConnection = channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
+        final ClientConnection clientConnection = ClientConnection.of(channel);
         if (clientConnection.getInFlightMessageCount() == null) {
             clientConnection.setInFlightMessageCount(new AtomicInteger(0));
         }
@@ -309,7 +309,7 @@ public class PublishPollServiceImpl implements PublishPollService {
                                              final boolean retainAsPublished,
                                              final @Nullable Integer subscriptionIdentifier,
                                              final @NotNull Channel channel) {
-        final ClientConnection clientConnection = channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
+        final ClientConnection clientConnection = ClientConnection.of(channel);
         if (clientConnection.isMessagesInFlight()) {
             return;
         }
@@ -421,7 +421,7 @@ public class PublishPollServiceImpl implements PublishPollService {
     }
 
     private int pollMessageLimit(final @NotNull Channel channel) {
-        final ClientConnection clientConnection = channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
+        final ClientConnection clientConnection = ClientConnection.of(channel);
         final int maxInflightWindow = (clientConnection == null)
                 ? InternalConfigurations.MAX_INFLIGHT_WINDOW_SIZE_MESSAGES
                 : clientConnection.getMaxInflightWindow(InternalConfigurations.MAX_INFLIGHT_WINDOW_SIZE_MESSAGES);
@@ -456,7 +456,7 @@ public class PublishPollServiceImpl implements PublishPollService {
                 FutureUtils.addExceptionLogger(future);
             }
 
-            final AtomicInteger inFlightMessages = channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().getInFlightMessageCount();
+            final AtomicInteger inFlightMessages = ClientConnection.of(channel).getInFlightMessageCount();
             if (inFlightMessages != null && inFlightMessages.decrementAndGet() > 0) {
                 return;
             }
@@ -467,7 +467,7 @@ public class PublishPollServiceImpl implements PublishPollService {
         public void onFailure(final Throwable t) {
             Exceptions.rethrowError("Pubrel delivery failed", t);
             messageIDPool.returnId(message.getPacketIdentifier());
-            final AtomicInteger inFlightMessages = channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().getInFlightMessageCount();
+            final AtomicInteger inFlightMessages = ClientConnection.of(channel).getInFlightMessageCount();
             if (inFlightMessages != null) {
                 inFlightMessages.decrementAndGet();
             }

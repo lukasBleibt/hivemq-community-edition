@@ -98,7 +98,7 @@ public class RetainedMessagesSender {
             return Futures.immediateFuture(null);
         }
 
-        final String clientId = channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().getClientId();
+        final String clientId = ClientConnection.of(channel).getClientId();
         final ImmutableList.Builder<ListenableFuture<RetainedMessage>> retainedMessageFutures = ImmutableList.builder();
         for (final Topic topic : subscribedTopics) {
             retainedMessageFutures.add(retainedMessagePersistence.get(topic.getTopic()));
@@ -223,7 +223,7 @@ public class RetainedMessagesSender {
                 resultFuture.setFuture(FutureUtils.voidFutureFromList(futures.build()));
                 return;
             }
-            final Long queueLimit = channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().getQueueSizeMaximum();
+            final Long queueLimit = ClientConnection.of(channel).getQueueSizeMaximum();
             futures.add(clientQueuePersistence.add(clientId, false, qos1and2Messages, true,
                     Objects.requireNonNullElseGet(queueLimit, mqttConfigurationService::maxQueuedMessages)));
             resultFuture.setFuture(FutureUtils.voidFutureFromList(futures.build()));
@@ -245,7 +245,7 @@ public class RetainedMessagesSender {
 
                     payloadPersistence.decrementReferenceCounter(qos0Publish.getPublishId());
                     if (qos0Publish.getPacketIdentifier() != 0) {
-                        final MessageIDPool messageIDPool = channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().getMessageIDPool();
+                        final MessageIDPool messageIDPool = ClientConnection.of(channel).getMessageIDPool();
                         messageIDPool.returnId(qos0Publish.getPacketIdentifier());
                     }
                 }

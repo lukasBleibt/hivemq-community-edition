@@ -78,7 +78,7 @@ public class OrderedTopicService {
             return;
         }
 
-        final ClientConnection clientConnection = ctx.channel().attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
+        final ClientConnection clientConnection = ClientConnection.of(ctx.channel());
         final int maxInflightWindow = (clientConnection == null)
                 ? InternalConfigurations.MAX_INFLIGHT_WINDOW_SIZE_MESSAGES
                 : clientConnection.getMaxInflightWindow(InternalConfigurations.MAX_INFLIGHT_WINDOW_SIZE_MESSAGES);
@@ -111,7 +111,7 @@ public class OrderedTopicService {
             future = publishWithFuture.getFuture();
         }
 
-        final ClientConnection clientConnection = channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
+        final ClientConnection clientConnection = ClientConnection.of(channel);
         if (clientConnection == null) {
             return false;
         }

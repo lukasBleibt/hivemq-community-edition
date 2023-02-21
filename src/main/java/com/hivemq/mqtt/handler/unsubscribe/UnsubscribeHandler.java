@@ -42,7 +42,6 @@ import javax.inject.Singleton;
 import java.util.Arrays;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static com.hivemq.bootstrap.ClientConnection.CHANNEL_ATTRIBUTE_NAME;
 
 @Singleton
 @ChannelHandler.Sharable
@@ -67,7 +66,7 @@ public class UnsubscribeHandler extends SimpleChannelInboundHandler<UNSUBSCRIBE>
             final @NotNull UNSUBSCRIBE msg) throws Exception {
         SubscribeMessageBarrier.addToPipeline(ctx);
 
-        final ClientConnection clientConnection = ctx.channel().attr(CHANNEL_ATTRIBUTE_NAME).get();
+        final ClientConnection clientConnection = ClientConnection.of(ctx.channel());
         final String clientId = checkNotNull(clientConnection.getClientId());
 
         final UnsubscribeOperationCompletionCallback unsubscribeOperationCompletionCallback =

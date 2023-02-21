@@ -25,7 +25,6 @@ import com.hivemq.mqtt.message.publish.PUBLISH;
 import com.hivemq.mqtt.services.PublishPollService;
 import com.hivemq.persistence.payload.PublishPayloadPersistence;
 import com.hivemq.persistence.util.FutureUtils;
-
 import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -113,7 +112,7 @@ public class PublishStatusFutureCallback implements FutureCallback<PublishStatus
     }
 
     private void checkForNewMessages() {
-        final AtomicInteger inFlightMessages = channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().getInFlightMessageCount();
+        final AtomicInteger inFlightMessages = ClientConnection.of(channel).getInFlightMessageCount();
         if (inFlightMessages != null && inFlightMessages.decrementAndGet() > 0) {
             return;
         }

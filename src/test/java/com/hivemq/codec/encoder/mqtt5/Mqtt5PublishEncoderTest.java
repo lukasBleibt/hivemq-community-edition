@@ -56,7 +56,7 @@ public class Mqtt5PublishEncoderTest extends AbstractMqtt5EncoderTest {
     @Test
     public void test_encode_all() {
 
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setMaxPacketSizeSend(200L);
+        ClientConnection.of(channel).setMaxPacketSizeSend(200L);
 
         final byte[] expected = {
                 // fixed header
@@ -501,7 +501,7 @@ public class Mqtt5PublishEncoderTest extends AbstractMqtt5EncoderTest {
     @Test
     public void test_encode_userProperties_request_problem_information_false() {
 
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setRequestProblemInformation(false);
+        ClientConnection.of(channel).setRequestProblemInformation(false);
 
         final byte[] expected = {
                 // fixed header
@@ -713,7 +713,7 @@ public class Mqtt5PublishEncoderTest extends AbstractMqtt5EncoderTest {
                         Mqtt5PayloadFormatIndicator.UNSPECIFIED, null, null, correlationData, userProperties,
                         -1, false, true, null);
 
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setClientId("clientid");
+        ClientConnection.of(channel).setClientId("clientid");
         channel.writeOutbound(publish);
         final ByteBuf buf = channel.readOutbound();
         assertEquals(0, buf.readableBytes());

@@ -44,7 +44,9 @@ import com.hivemq.persistence.clientsession.SharedSubscriptionService;
 import com.hivemq.persistence.clientsession.SharedSubscriptionService.SharedSubscription;
 import com.hivemq.persistence.clientsession.callback.SubscriptionResult;
 import com.hivemq.persistence.retained.RetainedMessagePersistence;
-import com.hivemq.util.*;
+import com.hivemq.util.Exceptions;
+import com.hivemq.util.ReasonStrings;
+import com.hivemq.util.Topics;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
@@ -139,7 +141,7 @@ public class IncomingSubscribeService {
             final @NotNull String[] reasonStrings,
             final boolean authorizersPresent) {
 
-        final ModifiableDefaultPermissions permissions = ctx.channel().attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().getAuthPermissions();
+        final ModifiableDefaultPermissions permissions = ClientConnection.of(ctx.channel()).getAuthPermissions();
         final ModifiableDefaultPermissionsImpl defaultPermissions = (ModifiableDefaultPermissionsImpl) permissions;
 
         for (int i = 0; i < msg.getTopics().size(); i++) {
@@ -187,7 +189,7 @@ public class IncomingSubscribeService {
      * @return <code>true</code> if only valid subscriptions are contained, <code>false</code> otherwise
      */
     private boolean hasOnlyValidSubscriptions(final ChannelHandlerContext ctx, final SUBSCRIBE msg) {
-        final ClientConnection clientConnection = ctx.channel().attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
+        final ClientConnection clientConnection = ClientConnection.of(ctx.channel());
         log.trace("Checking SUBSCRIBE message of client '{}' if topics are valid", clientConnection.getClientId());
 
         final int maxTopicLength = restrictionsConfigurationService.maxTopicLength();
@@ -222,7 +224,7 @@ public class IncomingSubscribeService {
             final @Nullable Mqtt5SubAckReasonCode[] providedCodes,
             final @Nullable String reasonString) {
 
-        final ClientConnection clientConnection = ctx.channel().attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
+        final ClientConnection clientConnection = ClientConnection.of(ctx.channel());
         final String clientId = clientConnection.getClientId();
         downgradeSharedSubscriptions(msg);
 
@@ -384,7 +386,7 @@ public class IncomingSubscribeService {
     }
 
     private void handleInsufficientPermissionsV31(final @NotNull ChannelHandlerContext ctx, final @NotNull Topic topic) {
-        final ClientConnection clientConnection = ctx.channel().attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
+        final ClientConnection clientConnection = ClientConnection.of(ctx.channel());
         log.debug("MQTT v3.1 Client '{}' (IP: {}) is not authorized to subscribe to topic '{}' with QoS '{}'. Disconnecting client.",
                 clientConnection.getClientId(), clientConnection.getChannelIP().orElse("UNKNOWN"), topic.getTopic(), topic.getQoS().getQosNumber());
         mqttServerDisconnector.disconnect(

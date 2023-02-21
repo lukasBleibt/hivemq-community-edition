@@ -120,7 +120,7 @@ public class PluginInitializerHandler extends ChannelOutboundHandlerAdapter {
             final @NotNull ChannelPromise promise) {
 
         final Map<String, ClientInitializer> pluginInitializerMap = initializers.getClientInitializerMap();
-        final ClientConnection clientConnection = ctx.channel().attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
+        final ClientConnection clientConnection = ClientConnection.of(ctx.channel());
 
         //No initializer set through any extension
         if (pluginInitializerMap.isEmpty() && msg != null) {
@@ -197,7 +197,7 @@ public class PluginInitializerHandler extends ChannelOutboundHandlerAdapter {
             final @Nullable CONNACK msg,
             final @NotNull ChannelPromise promise) {
 
-        final ClientConnection clientConnection = ctx.channel().attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
+        final ClientConnection clientConnection = ClientConnection.of(ctx.channel());
 
         final CONNECT connect = clientConnection.getConnectMessage();
         if (connect == null || connect.getWillPublish() == null) {
@@ -289,7 +289,7 @@ public class PluginInitializerHandler extends ChannelOutboundHandlerAdapter {
         public void finishInitializer() {
             try {
                 if (counter.incrementAndGet() == initializerSize) {
-                    final ClientConnection clientConnection = channelHandlerContext.channel().attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
+                    final ClientConnection clientConnection = ClientConnection.of(channelHandlerContext.channel());
                     //update the clients context when all initializers are initialized.
                     clientConnection.setExtensionClientContext(clientContext);
                     clientConnection.setAuthPermissions(clientContext.getDefaultPermissions());

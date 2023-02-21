@@ -16,7 +16,6 @@
 package com.hivemq.security.ssl;
 
 import com.google.inject.Inject;
-import com.hivemq.bootstrap.ClientConnection;
 import com.hivemq.bootstrap.ClientConnectionContext;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.mqtt.handler.disconnect.MqttServerDisconnector;
@@ -82,7 +81,7 @@ public class SslExceptionHandler extends ChannelHandlerAdapter {
 
             final Throwable rootCause = ExceptionUtils.getRootCause(cause);
 
-            final ClientConnectionContext clientConnection = ClientConnectionContext.get(ctx.channel());
+            final ClientConnectionContext clientConnection = ClientConnectionContext.of(ctx.channel());
             final String clientId = clientConnection.getClientId();
             if (clientId != null) {
                 log.debug("SSL message transmission for client {} failed: {}", clientId, rootCause.getMessage());
@@ -98,12 +97,12 @@ public class SslExceptionHandler extends ChannelHandlerAdapter {
 
             final Throwable rootCause = ExceptionUtils.getRootCause(cause);
 
-            final ClientConnection clientConnection = ctx.channel().attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
-            final String clientId = clientConnection.getClientId();
+            final ClientConnectionContext clientConnectionContext = ClientConnectionContext.of(ctx.channel());
+            final String clientId = clientConnectionContext.getClientId();
             if (clientId != null) {
                 log.debug("SSL Handshake for client {} failed: {}", clientId, rootCause.getMessage());
             } else {
-                log.debug("SSL Handshake failed for client with IP {}: {}", clientConnection.getChannelIP().orElse("UNKNOWN"), rootCause.getMessage());
+                log.debug("SSL Handshake failed for client with IP {}: {}", clientConnectionContext.getChannelIP().orElse("UNKNOWN"), rootCause.getMessage());
             }
             log.trace("Original Exception", rootCause);
         }
@@ -114,8 +113,8 @@ public class SslExceptionHandler extends ChannelHandlerAdapter {
 
         if (cause instanceof NotSslRecordException) {
             if (log.isDebugEnabled()) {
-                final ClientConnection clientConnection = ctx.channel().attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
-                log.debug("Client {} sent data which is not SSL/TLS to a SSL/TLS listener. Disconnecting client.", clientConnection.getChannelIP().orElse("UNKNOWN"));
+                final ClientConnectionContext clientConnectionContext = ClientConnectionContext.of(ctx.channel());
+                log.debug("Client {} sent data which is not SSL/TLS to a SSL/TLS listener. Disconnecting client.", clientConnectionContext.getChannelIP().orElse("UNKNOWN"));
                 log.trace("Original Exception:", cause);
             }
             //Just in case the client wasn't disconnected already

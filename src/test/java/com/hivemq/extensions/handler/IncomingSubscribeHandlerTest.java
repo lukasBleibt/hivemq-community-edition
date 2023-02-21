@@ -18,6 +18,7 @@ package com.hivemq.extensions.handler;
 
 import com.google.common.collect.Lists;
 import com.hivemq.bootstrap.ClientConnection;
+import com.hivemq.bootstrap.ClientConnectionContext;
 import com.hivemq.bootstrap.netty.ChannelHandlerNames;
 import com.hivemq.common.shutdown.ShutdownHooks;
 import com.hivemq.configuration.service.FullConfigurationService;
@@ -124,8 +125,8 @@ public class IncomingSubscribeHandlerTest {
         final SubscribeHandler subscribeHandler = new SubscribeHandler(incomingSubscribeHandler);
 
         channel = new EmbeddedChannel();
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setClientId("test_client");
+        channel.attr(ClientConnectionContext.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
+        ClientConnection.of(channel).setClientId("test_client");
         channel.pipeline().addFirst(subscribeHandler);
         channel.pipeline().addFirst(ChannelHandlerNames.MQTT_MESSAGE_ENCODER, new DummyHandler());
     }
@@ -145,7 +146,7 @@ public class IncomingSubscribeHandlerTest {
 
     @Test(timeout = 5000)
     public void test_read_subscribe_client_id_not_set() {
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setClientId(null);
+        ClientConnection.of(channel).setClientId(null);
 
         channel.writeInbound(TestMessageUtil.createFullMqtt5Subscribe());
 
@@ -164,7 +165,7 @@ public class IncomingSubscribeHandlerTest {
         final ClientContextImpl clientContext =
                 new ClientContextImpl(hiveMQExtensions, new ModifiableDefaultPermissionsImpl());
 
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setExtensionClientContext(clientContext);
+        ClientConnection.of(channel).setExtensionClientContext(clientContext);
 
         channel.writeInbound(TestMessageUtil.createFullMqtt5Subscribe());
 
@@ -179,10 +180,10 @@ public class IncomingSubscribeHandlerTest {
 
         clientContext.addSubscribeInboundInterceptor(isolatedInterceptors.get(0));
 
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(new DummyClientConnection(channel, publishFlushHandler));
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setClientId("test_client");
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setProtocolVersion(ProtocolVersion.MQTTv5);
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setExtensionClientContext(clientContext);
+        channel.attr(ClientConnectionContext.CHANNEL_ATTRIBUTE_NAME).set(new DummyClientConnection(channel, publishFlushHandler));
+        ClientConnection.of(channel).setClientId("test_client");
+        ClientConnection.of(channel).setProtocolVersion(ProtocolVersion.MQTTv5);
+        ClientConnection.of(channel).setExtensionClientContext(clientContext);
 
         when(hiveMQExtensions.getExtensionForClassloader(any(IsolatedExtensionClassloader.class))).thenReturn(extension);
 
@@ -206,10 +207,10 @@ public class IncomingSubscribeHandlerTest {
 
         clientContext.addSubscribeInboundInterceptor(isolatedInterceptors.get(0));
 
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(new DummyClientConnection(channel, publishFlushHandler));
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setClientId("test_client");
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setProtocolVersion(ProtocolVersion.MQTTv3_1_1);
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setExtensionClientContext(clientContext);
+        channel.attr(ClientConnectionContext.CHANNEL_ATTRIBUTE_NAME).set(new DummyClientConnection(channel, publishFlushHandler));
+        ClientConnection.of(channel).setClientId("test_client");
+        ClientConnection.of(channel).setProtocolVersion(ProtocolVersion.MQTTv3_1_1);
+        ClientConnection.of(channel).setExtensionClientContext(clientContext);
 
         when(hiveMQExtensions.getExtensionForClassloader(any(IsolatedExtensionClassloader.class))).thenReturn(extension);
 
@@ -233,10 +234,10 @@ public class IncomingSubscribeHandlerTest {
 
         clientContext.addSubscribeInboundInterceptor(isolatedInterceptors.get(1));
 
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(new DummyClientConnection(channel, publishFlushHandler));
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setClientId("test_client");
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setProtocolVersion(ProtocolVersion.MQTTv5);
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setExtensionClientContext(clientContext);
+        channel.attr(ClientConnectionContext.CHANNEL_ATTRIBUTE_NAME).set(new DummyClientConnection(channel, publishFlushHandler));
+        ClientConnection.of(channel).setClientId("test_client");
+        ClientConnection.of(channel).setProtocolVersion(ProtocolVersion.MQTTv5);
+        ClientConnection.of(channel).setExtensionClientContext(clientContext);
 
         final CountDownLatch subackLatch = new CountDownLatch(1);
 
@@ -273,10 +274,10 @@ public class IncomingSubscribeHandlerTest {
 
         clientContext.addSubscribeInboundInterceptor(isolatedInterceptors.get(1));
 
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(new DummyClientConnection(channel, publishFlushHandler));
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setClientId("test_client");
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setProtocolVersion(ProtocolVersion.MQTTv3_1);
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setExtensionClientContext(clientContext);
+        channel.attr(ClientConnectionContext.CHANNEL_ATTRIBUTE_NAME).set(new DummyClientConnection(channel, publishFlushHandler));
+        ClientConnection.of(channel).setClientId("test_client");
+        ClientConnection.of(channel).setProtocolVersion(ProtocolVersion.MQTTv3_1);
+        ClientConnection.of(channel).setExtensionClientContext(clientContext);
 
         final CountDownLatch subackLatch = new CountDownLatch(1);
         final CountDownLatch disconnectLatch = new CountDownLatch(1);
@@ -316,10 +317,10 @@ public class IncomingSubscribeHandlerTest {
 
         clientContext.addSubscribeInboundInterceptor(isolatedInterceptors.get(2));
 
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(new DummyClientConnection(channel, publishFlushHandler));
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setClientId("test_client");
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setProtocolVersion(ProtocolVersion.MQTTv3_1_1);
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setExtensionClientContext(clientContext);
+        channel.attr(ClientConnectionContext.CHANNEL_ATTRIBUTE_NAME).set(new DummyClientConnection(channel, publishFlushHandler));
+        ClientConnection.of(channel).setClientId("test_client");
+        ClientConnection.of(channel).setProtocolVersion(ProtocolVersion.MQTTv3_1_1);
+        ClientConnection.of(channel).setExtensionClientContext(clientContext);
 
         final CountDownLatch subackLatch = new CountDownLatch(1);
 
@@ -355,10 +356,10 @@ public class IncomingSubscribeHandlerTest {
 
         clientContext.addSubscribeInboundInterceptor(isolatedInterceptors.get(2));
 
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(new DummyClientConnection(channel, publishFlushHandler));
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setClientId("test_client");
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setProtocolVersion(ProtocolVersion.MQTTv5);
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setExtensionClientContext(clientContext);
+        channel.attr(ClientConnectionContext.CHANNEL_ATTRIBUTE_NAME).set(new DummyClientConnection(channel, publishFlushHandler));
+        ClientConnection.of(channel).setClientId("test_client");
+        ClientConnection.of(channel).setProtocolVersion(ProtocolVersion.MQTTv5);
+        ClientConnection.of(channel).setExtensionClientContext(clientContext);
 
         final CountDownLatch subackLatch = new CountDownLatch(1);
 
@@ -393,10 +394,10 @@ public class IncomingSubscribeHandlerTest {
 
         clientContext.addSubscribeInboundInterceptor(isolatedInterceptors.get(2));
 
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(new DummyClientConnection(channel, publishFlushHandler));
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setClientId("test_client");
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setProtocolVersion(ProtocolVersion.MQTTv5);
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setExtensionClientContext(clientContext);
+        channel.attr(ClientConnectionContext.CHANNEL_ATTRIBUTE_NAME).set(new DummyClientConnection(channel, publishFlushHandler));
+        ClientConnection.of(channel).setClientId("test_client");
+        ClientConnection.of(channel).setProtocolVersion(ProtocolVersion.MQTTv5);
+        ClientConnection.of(channel).setExtensionClientContext(clientContext);
 
         final CountDownLatch subackLatch = new CountDownLatch(1);
 

@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import com.hivemq.bootstrap.ClientConnection;
+import com.hivemq.bootstrap.ClientConnectionContext;
 import com.hivemq.bootstrap.netty.ChannelHandlerNames;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.mqtt.message.ProtocolVersion;
@@ -63,9 +64,9 @@ public class UnsubscribeHandlerTest {
         unsubscribeHandler = new UnsubscribeHandler(clientSessionSubscriptionPersistence, sharedSubscriptionService);
         clientConnection = new DummyClientConnection(channel, null);
         channel = new EmbeddedChannel(unsubscribeHandler);
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
+        channel.attr(ClientConnectionContext.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
         channel.pipeline().addFirst(ChannelHandlerNames.MQTT_MESSAGE_ENCODER, new DummyHandler());
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setClientId("myTestClient");
+        ClientConnection.of(channel).setClientId("myTestClient");
         when(clientSessionSubscriptionPersistence.remove(anyString(), any(String.class)))
                 .thenReturn(Futures.immediateFuture(null));
         when(clientSessionSubscriptionPersistence.removeSubscriptions(anyString(), any(ImmutableSet.class))).thenReturn(

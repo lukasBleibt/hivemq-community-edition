@@ -167,7 +167,7 @@ public class Mqtt5DisconnectEncoderTest extends AbstractMqtt5EncoderTest {
     @Test
     public void encode_reasonString_request_problem_information_false() {
 
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setRequestProblemInformation(false);
+        ClientConnection.of(channel).setRequestProblemInformation(false);
 
         final byte[] expected = {
                 // fixed header
@@ -196,7 +196,7 @@ public class Mqtt5DisconnectEncoderTest extends AbstractMqtt5EncoderTest {
     @Test
     public void encode_allProperties_request_problem_information_false() {
 
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().setRequestProblemInformation(false);
+        ClientConnection.of(channel).setRequestProblemInformation(false);
 
         final byte[] expected = {
                 // fixed header

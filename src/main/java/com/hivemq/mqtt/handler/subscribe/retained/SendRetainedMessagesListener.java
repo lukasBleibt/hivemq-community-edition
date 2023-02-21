@@ -190,7 +190,7 @@ public class SendRetainedMessagesListener implements ChannelFutureListener {
             //Attention, this set is immutable, so we need a fresh mutable collection
             final Queue<String> topics = new ConcurrentLinkedQueue<>(retainedMessageTopics);
 
-            final Integer clientReceiveMaximum = channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get().getClientReceiveMaximum();
+            final Integer clientReceiveMaximum = ClientConnection.of(channel).getClientReceiveMaximum();
 
             int concurrentMessages = clientReceiveMaximum == null ? CONCURRENT_MESSAGES :
                     Math.min(clientReceiveMaximum, CONCURRENT_MESSAGES);
@@ -214,7 +214,7 @@ public class SendRetainedMessagesListener implements ChannelFutureListener {
 
         @Override
         public void onFailure(final @NotNull Throwable throwable) {
-            final ClientConnection clientConnection = channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).get();
+            final ClientConnection clientConnection = ClientConnection.of(channel);
             Exceptions.rethrowError("Unable to send retained messages on topic " + subscription.getTopic() +
                     " to client " + clientConnection.getClientId() + ".", throwable);
             channel.disconnect();

@@ -18,6 +18,7 @@ package com.hivemq.extensions.client.parameter;
 
 import com.google.common.collect.Lists;
 import com.hivemq.bootstrap.ClientConnection;
+import com.hivemq.bootstrap.ClientConnectionContext;
 import com.hivemq.configuration.service.entity.*;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
 import com.hivemq.extension.sdk.api.client.parameter.ClientTlsInformation;
@@ -58,7 +59,7 @@ public class ConnectionInformationImplTest {
     public void setUp() throws Exception {
         channel = new EmbeddedChannel();
         clientConnection = new DummyClientConnection(channel, mock(PublishFlushHandler.class));
-        channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
+        channel.attr(ClientConnectionContext.CHANNEL_ATTRIBUTE_NAME).set(clientConnection);
     }
 
     @Test(expected = NullPointerException.class)

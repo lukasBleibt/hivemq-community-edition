@@ -17,6 +17,7 @@ package com.hivemq.codec.decoder;
 
 import com.google.common.primitives.Bytes;
 import com.hivemq.bootstrap.ClientConnection;
+import com.hivemq.bootstrap.ClientConnectionContext;
 import com.hivemq.codec.decoder.mqtt3.Mqtt31ConnectDecoder;
 import com.hivemq.configuration.HivemqId;
 import com.hivemq.extension.sdk.api.annotations.NotNull;
@@ -67,7 +68,7 @@ public class Mqtt31ConnectDecoderTest {
         clientConnection = new DummyClientConnection(channel, null);
         clientConnection.setProtocolVersion(ProtocolVersion.MQTTv3_1);
         clientConnection.setClientId("clientId");
-        when(channel.attr(ClientConnection.CHANNEL_ATTRIBUTE_NAME)).thenReturn(new TestChannelAttribute<>(clientConnection));
+        when(channel.attr(ClientConnectionContext.CHANNEL_ATTRIBUTE_NAME)).thenReturn(new TestChannelAttribute<>(clientConnection));
 
         decoder = new Mqtt31ConnectDecoder(connacker,
                 new ClientIds(new HivemqId()),
