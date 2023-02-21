@@ -125,7 +125,7 @@ public class EventLogTest {
 
     @Test
     public void clientConnected_unknown() {
-        eventLog.clientConnected(channel);
+        eventLog.clientConnected(channel, cleanStart);
 
         logMessageBuffer.append("Client ID: ").append(clientId)
                 .append(", IP: ").append("UNKNOWN")
@@ -140,7 +140,7 @@ public class EventLogTest {
 
         when(channel.remoteAddress()).thenReturn(new InetSocketAddress("127.0.0.1", 1234));
 
-        eventLog.clientConnected(channel);
+        eventLog.clientConnected(channel, cleanStart);
 
         logMessageBuffer.append("Client ID: ").append(clientId)
                 .append(", IP: ").append("127.0.0.1")
